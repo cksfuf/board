@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+
+{% block body %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>title</th>
+                <th>created_at</th>
+                <th>link</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for article in articles %}
+                <tr>
+                    <td>{{article.title}}</td>
+                    <td>{{article.created_at}}</td>
+                    <td><a href="{% url 'articles:detail' id=article.id %}">link</a></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}
