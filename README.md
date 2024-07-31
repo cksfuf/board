@@ -290,31 +290,98 @@ def detail(request, id):
         <a class="nav-link disabled" aria-disabled="true">Disabled</a>
 ```
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-- base.html 코드 수정
+### 16. Create 기능구현
+- `articles/templates`에 `new.html` 생성
 ```html
+{% extends 'base.html' %}
+
+{% block body %}
+<form action="{% url 'articles:create' %}" method="POST">
+    {% csrf_token %}
+    <div class="mb-3">
+        <label for="title" class="form-label">Title</label>
+        <input type="text" id="title" class="form-control" name="title">
+    </div>
+    <div class="mb-3">
+        <label for="content" class="form-label">Content</label>
+        <textarea id="content" class="form-control" rows="10" name="content"></textarea>
+    </div>
+
+    <button type="submit" class="btn btn-primary">submit</button>
+</form>
+{% endblock %}
+```
+- `articles/urls.py` 에 새로만들 `create` 기능과 이를 위한 새 페이지 기능인 `new` 경로 만들기
+```python
+urlpatterns = [
+    ...
+    path('new/', views.new, name='new'), # 추가
+    path('create/', views.create, name='create'), # 추가
+
+]
+```
+- `articles/views.py` 에 `redirect` import 하고 `new` 와 `create` 함수 만들기
+```python
+from django.shortcuts import render, redirect # redirect 추가
+
+def new(request):
+    return render(request, 'new.html')
+
+
+def create(request):
+    title = request.POST.get('title')
+    content = request.POST.get('content')
+
+    article = Article()
+    article.title = title
+    article.content = content
+    article.save()
+
+    return redirect('articles:detail', id=article.id)
+```
+- `templates/base.html` 수정하기
+```html
+<body>
     <nav class="nav">
-        <a class="nav-link" href="/{% url 'articles:index' %}/">Home</a>
-        <a class="nav-link" href="#">Link</a>
+        <a class="nav-link" href="{% url 'articles:index' %}">Home</a>
+        <!-- <a class="nav-link" href="#">Link</a>  아래 코드로 수정 -->
+        <a class="nav-link" href="{% url 'articles:new' %}">Create</a>
         <a class="nav-link" href="#">Link</a>
         <a class="nav-link disabled" aria-disabled="true">Disabled</a>
     </nav>
 ```
+
+### 17. delete 기능구현
+- `articles/templates/detail.html` 에 delete 버튼 추가를 위한 수정
+```html
+{{article.created_at}}
+    </div>
+</div>
+<a href="{% url 'articles:delete' id=article.id %}" class="btn btn-danger">delete</a>
+{% endblock %}
+```
+- `articles/urls.py` 경로 지정
+```python
+urlpatterns = [
+    ...
+    path('<int:id>/delete/', views.delete, name='delete'), # 추가
+
+]
+```
+- `articles/views.py` 함수 생성
+```python
+def delete(request, id):
+    article = Article.objects.get(id=id)
+    article.delete()
+
+    return redirect('articles:index')
+```
+
+
+# 18. update 기능구현
+
+
+
 
 # Delete 기능 만들기
 - detaril.html 에서 만들기
